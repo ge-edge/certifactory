@@ -31,6 +31,8 @@ jobs:
         run: |
           export lic_pps=$(cat $GITHUB_EVENT_PATH | jq '.inputs.PPS' | sed 's/"//g' )
           export lic_id=$(cat $GITHUB_EVENT_PATH | jq '.inputs.Id' | sed 's/"//g' )
+          rm ./hash-gen.sh
+          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/hash-gen.sh
           chmod 644 ./hash-gen.sh
           source ./hash-gen.sh
         #  source ./hash-gen.sh
