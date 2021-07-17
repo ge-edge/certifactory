@@ -1,4 +1,4 @@
-name: beta-license-req
+name: License Request (Beta)
 on:
   workflow_dispatch:
     inputs:
