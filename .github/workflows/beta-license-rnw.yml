@@ -1,4 +1,4 @@
-name: License Renewal (beta)
+name: License Renewal (Beta)
 on:
   workflow_dispatch:
     inputs:
