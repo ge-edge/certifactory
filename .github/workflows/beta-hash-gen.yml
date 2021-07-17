@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          ref: disty
+          ref: beta
       - name: Generate a owner hash
         id: gen-owner-hash
         env:
