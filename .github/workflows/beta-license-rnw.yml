@@ -31,10 +31,10 @@ jobs:
         run: |
           export lic_pps=$(cat $GITHUB_EVENT_PATH | jq '.inputs.PPS' | sed 's/"//g' )
           export lic_id=$(cat $GITHUB_EVENT_PATH | jq '.inputs.Id' | sed 's/"//g' )
-          rm ./lic-renew.sh
-          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/lic-renew.sh
-          chmod 644 ./lic-renew.sh
-          source ./lic-renew.sh
+          rm ./lic-rnw.sh
+          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/lic-rnw.sh
+          chmod 644 ./lic-rnw.sh
+          source ./lic-rnw.sh
       - name: Send hash via email
         uses: dawidd6/action-send-mail@v2
         with:
