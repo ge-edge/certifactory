@@ -1,4 +1,4 @@
-name: beta-license-sgn
+name: License Signing (Beta)
 on:
   push:
     branches: [ beta ]
