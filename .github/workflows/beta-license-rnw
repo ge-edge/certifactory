@@ -1,0 +1,61 @@
+name: License Renewal (beta)
+on:
+  workflow_dispatch:
+    inputs:
+      Id:
+        description: 'The Id which was assigned originally to the owner of the license'
+        required: true
+      PPS:
+        description: 'The passphrase used for this license'
+        required: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    environment: beta
+    env:
+      #AGENT_REV: "1.2-b.0.reiwa"
+      AGENT_REV: "temp"
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: beta
+      - name: Renew Existing License
+        id: gen-owner-hash
+        env:
+          EC_PPRS: ${{ secrets.ADM_PPS }}
+          EC_PVK: ${{ secrets.ADM_KEY }}
+          EC_PBK: ${{ secrets.ADM_CER }}
+          EC_TKN: ${{ secrets.ADM_TKN }}
+        run: |
+          export lic_pps=$(cat $GITHUB_EVENT_PATH | jq '.inputs.PPS' | sed 's/"//g' )
+          export lic_id=$(cat $GITHUB_EVENT_PATH | jq '.inputs.Id' | sed 's/"//g' )
+          rm ./lic-renew.sh
+          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/lic-renew.sh
+          chmod 644 ./lic-renew.sh
+          source ./lic-renew.sh
+      - name: Send hash via email
+        uses: dawidd6/action-send-mail@v2
+        with:
+          server_address: ${{ secrets.ADM_EML_SVR }}
+          server_port: 587
+          username: ${{secrets.ADM_EML_USR}}
+          password: ${{secrets.ADM_EML_PWD}}
+          subject: EC-Release > Certifactory > License > Hash
+          # Literal body:
+          body: |
+            ### Owner Hash Generation
+            Attached please find the owner hash as request.
+          
+            The hash is only valid for 90 days. As the owner of this license, you may continue come back at anytime to renew this hash via the workflow process.
+            
+            <sup>This hash is not sharable or transferrable, and not being stored anywhere in our system.</sup>
+          # Read file contents as body:
+          to: ${{ env.lic_email }}
+          from: EC Autobot <ec.autobot@outlook.com>
+          content_type: text/html
+          # Optional converting Markdown to HTML (set content_type to text/html too):
+          convert_markdown: true
+          # Optional attachments:
+          attachments: ./../hash.txt
