@@ -23,7 +23,7 @@ jobs:
           EC_PPRS: ${{ secrets.ADM_PPS }}
           EC_PVK: ${{ secrets.ADM_KEY }}
           EC_PBK: ${{ secrets.ADM_CER }}
-          #EC_TKN: ${{ secrets.ADM_TKN }}
+          EC_TKN: ${{ secrets.ADM_TKN }}
         run: | 
           rm ./deploy.sh ./before_deploy.sh
           wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/deploy.sh
