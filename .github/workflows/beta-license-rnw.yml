@@ -42,20 +42,17 @@ jobs:
           server_port: 587
           username: ${{secrets.ADM_EML_USR}}
           password: ${{secrets.ADM_EML_PWD}}
-          subject: EC-Release > Certifactory > License > Hash
+          subject: EC-Release > Certifactory > License > Renewal
           # Literal body:
           body: |
             ### Owner Hash Generation
-            Attached please find the owner hash as request.
+            Attached please find the renewal license per your request.
           
-            The hash is only valid for 90 days. As the owner of this license, you may continue come back at anytime to renew this hash via the workflow process.
-            
-            <sup>This hash is not sharable or transferrable, and not being stored anywhere in our system.</sup>
-          # Read file contents as body:
+            The license will continue be valid for 365 days hash for the usage.
+
+            <sup>This license is not sharable or transferrable please use it at your descretion.</sup>
           to: ${{ env.lic_email }}
           from: EC Autobot <ec.autobot@outlook.com>
           content_type: text/html
-          # Optional converting Markdown to HTML (set content_type to text/html too):
           convert_markdown: true
-          # Optional attachments:
-          attachments: ./../hash.txt
+          attachments: ./../license.txt
