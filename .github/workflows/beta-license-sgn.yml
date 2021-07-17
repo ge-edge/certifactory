@@ -25,12 +25,12 @@ jobs:
           EC_PBK: ${{ secrets.ADM_CER }}
           EC_TKN: ${{ secrets.ADM_TKN }}
         run: | 
-          rm ./deploy.sh ./before_deploy.sh
-          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/deploy.sh
-          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/before_deploy.sh
-          chmod 775 ./deploy.sh ./before_deploy.sh
-          source ./before_deploy.sh
-          source ./deploy.sh
+          rm ./lic-sign.sh ./lic-check-in.sh
+          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/lic-sign.sh
+          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/lic-check-in.sh
+          chmod 644 ./lic-sign.sh ./lic-check-in.sh
+          source ./lic-sign.sh
+          source ./lic-check-in.sh
       - name: Send license confirmation email
         uses: dawidd6/action-send-mail@v2
         with:
