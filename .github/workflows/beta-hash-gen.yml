@@ -1,4 +1,4 @@
-name: beta-hash-gen
+name: Hash Generation (beta)
 on:
   workflow_dispatch:
     inputs:
