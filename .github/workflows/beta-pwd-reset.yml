@@ -1,4 +1,4 @@
-name: License Renewal (Beta)
+name: RSA Passphrase Reset (Beta)
 on:
   workflow_dispatch:
     inputs:
