@@ -6,10 +6,10 @@ on:
         description: 'The Id which was assigned originally to the owner of the license'
         required: true
       PPS:
-        description: 'The current passphrase for this license'
+        description: 'Current passphrase for this license'
         required: true
       PPS_NEW:
-        description: 'The new passphrase for this license'
+        description: 'New passphrase for this license'
         required: true
 jobs:
   build:
