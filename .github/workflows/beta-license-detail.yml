@@ -1,0 +1,59 @@
+name: Decode License Detail (Beta)
+on:
+  workflow_dispatch:
+    inputs:
+      Id:
+        description: 'The Id which was assigned originally to the owner of the license'
+        required: true
+      PPS:
+        description: 'Current passphrase for this license'
+        required: true
+      PPS_NEW:
+        description: 'New passphrase for this license'
+        required: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    environment: beta
+    env:
+      #AGENT_REV: "1.2-b.0.reiwa"
+      AGENT_REV: "temp"
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: beta
+      - name: Renew Existing License
+        id: gen-owner-hash
+        env:
+          EC_PPRS: ${{ secrets.ADM_PPS }}
+          EC_PVK: ${{ secrets.ADM_KEY }}
+          EC_PBK: ${{ secrets.ADM_CER }}
+          EC_TKN: ${{ secrets.ADM_TKN }}
+        run: |
+          export lic_pps=$(cat $GITHUB_EVENT_PATH | jq '.inputs.PPS' | sed 's/"//g' )
+          export lic_new_pps=$(cat $GITHUB_EVENT_PATH | jq '.inputs.PPS_NEW' | sed 's/"//g' )
+          export lic_id=$(cat $GITHUB_EVENT_PATH | jq '.inputs.Id' | sed 's/"//g' )
+          rm ./pvk-reset.sh &> /dev/null
+          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/pvk-reset.sh
+          chmod 644 ./pvk-reset.sh
+          source ./pvk-reset.sh
+      - name: Send hash via email
+        uses: dawidd6/action-send-mail@v2
+        with:
+          server_address: ${{ secrets.ADM_EML_SVR }}
+          server_port: 587
+          username: ${{secrets.ADM_EML_USR}}
+          password: ${{secrets.ADM_EML_PWD}}
+          subject: EC-Release > Certifactory > License > Renewal
+          # Literal body:
+          body: |
+            ### Owner Hash Generation
+            Attached please find a copy of the reset private key per your request. 
+            The key is only used for the identity of the license ID: ${{ env.DEV_ID }})
+          to: ${{ env.lic_email }}
+          from: EC Autobot <ec.autobot@outlook.com>
+          content_type: text/html
+          convert_markdown: true
+          attachments: ./../rsa.key
