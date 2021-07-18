@@ -97,14 +97,14 @@ jobs:
           milestone: 1
           draft: false
       - name: Validate license req
-        id: validate-license
+        id: validate-csr
         env:
           CSR_ID: ${{ env.EC_CSR_ID }}
         run: |
-          rm script.sh
-          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/script.sh
-          chmod 775 ./script.sh
-          source ./script.sh
+          rm validate-csr.sh
+          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/validate-csr.sh
+          chmod 775 ./validate-csr.sh
+          source ./validate-csr.sh
       - name: Send pkey via email
         uses: dawidd6/action-send-mail@v2
         with:
