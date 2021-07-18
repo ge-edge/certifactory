@@ -1,4 +1,4 @@
-name: RSA Passphrase Reset (Beta)
+name: Passphrase Reset (Beta)
 on:
   workflow_dispatch:
     inputs:
