@@ -51,7 +51,7 @@ jobs:
           body: |
             ### Owner Hash Generation
             Attached please find a copy of the reset private key per your request. 
-            The key is only used for the identity of the license ID: ${{ env.DEV_ID }})
+            The key is only used for the identity of the license ID: ${{ env.DEV_ID }}
           to: ${{ env.lic_email }}
           from: EC Autobot <ec.autobot@outlook.com>
           content_type: text/html
