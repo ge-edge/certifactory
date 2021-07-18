@@ -1,4 +1,4 @@
-name: Decode License Detail (Beta)
+name: License Detail (Beta)
 on:
   workflow_dispatch:
     inputs:
