@@ -1,0 +1,33 @@
+name: License Detail (Beta)
+on:
+  workflow_dispatch:
+    inputs:
+      Id:
+        description: 'The Id which was assigned originally to the owner of the license'
+        required: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    environment: beta
+    env:
+      #AGENT_REV: "1.2-b.0.reiwa"
+      AGENT_REV: "temp"
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: beta
+      - name: Verify License
+        id: verify-license
+        env:
+          #EC_PPRS: ${{ secrets.ADM_PPS }}
+          #EC_PVK: ${{ secrets.ADM_KEY }}
+          #EC_PBK: ${{ secrets.ADM_CER }}
+          EC_TKN: ${{ secrets.ADM_TKN }}
+        run: |
+          export lic_id=$(cat $GITHUB_EVENT_PATH | jq '.inputs.Id' | sed 's/"//g' )
+          rm ./crt-detail.sh &> /dev/null
+          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/crt-detail.sh
+          chmod 644 ./crt-detail.sh
+          source ./crt-detail.sh

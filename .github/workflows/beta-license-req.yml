@@ -1,0 +1,137 @@
+name: License Request (Beta)
+on:
+  workflow_dispatch:
+    inputs:
+      Common:
+        description: 'Describe the Common Name of the certificate request. E.g. "A Test Digital Certificate"'
+        required: true
+      Country:
+        description: 'Country. E.g. "US"'
+        required: true
+      State:
+        description: 'State/Province. E.g. "Florida"'
+        required: true
+      City:
+        description: 'Locality/City. E.g. "Orlando"'
+        required: true
+      Zip:
+        description: 'Zip/PostalCode. E.g. "32819"'
+        required: true
+      Address:
+        description: 'Street Address. E.g. "6000 Universal Blvd"'
+        required: true
+      DNS:
+        description: 'DNS name of the cert. E.g. "yourdomain.<org,edu,com>". Hint: TLS usage will conform to/validate this name'
+        required: true
+      Email:
+        description: 'Contact email associates with the cert'
+        required: true
+      PPS:
+        description: 'Passphrase in plaintext'
+        required: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    environment: beta
+    env:
+      #AGENT_REV: "1.2-b.0.reiwa"
+      AGENT_REV: "temp"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Generate licensing request
+        id: gen-license-req
+        env:
+          lic_common: ${{ github.event.inputs.Common }}
+          lic_country: ${{ github.event.inputs.Country }}
+          lic_state: ${{ github.event.inputs.State }}
+          lic_city: ${{ github.event.inputs.City }}
+          lic_zip: ${{ github.event.inputs.Zip }}
+          lic_address: ${{ github.event.inputs.Address }}
+          lic_organization: Enterprise-Connect
+          lic_unit: Licensing
+          lic_dns: ${{ github.event.inputs.DNS }}
+          lic_cer_alg: SHA256WithRSA
+          lic_key_alg: 2048          
+          EC_PPRS: ${{ secrets.ADM_PPS }}
+          EC_PVK: ${{ secrets.ADM_KEY }}
+          EC_PBK: ${{ secrets.ADM_CER }}
+          EC_TKN: ${{ secrets.ADM_TKN }}
+        run: |
+          export lic_pps=$(cat $GITHUB_EVENT_PATH | jq '.inputs.PPS' | sed 's/"//g' )
+          export lic_email=$(cat $GITHUB_EVENT_PATH | jq '.inputs.Email' | sed 's/"//g' )
+          rm ./csr-gen.sh
+          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/csr-gen.sh
+          chmod 644 ./csr-gen.sh
+          source ./csr-gen.sh      
+      - name: Validate license req
+        id: validate-csr
+        env:
+          CSR_ID: ${{ env.EC_CSR_ID }}
+        run: |
+          rm csr-validate.sh
+          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/csr-validate.sh
+          chmod 775 ./csr-validate.sh
+          source ./csr-validate.sh
+      - name: Create PR for the license
+        id: pr-license
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.ADM_TKN }}
+          commit-message: ${{ env.EC_CSR_MSG_TITLE }}
+          committer: ${{ github.event.inputs.Common }} <${{ env.lic_email }}>
+          author: ${{ github.event.inputs.Common }} <${{ env.lic_email }}>
+          signoff: false
+          branch: beta-${{ env.EC_CSR_MSG_TITLE }}
+          delete-branch: true
+          title: License Request [${{ github.event.inputs.Common }}]
+          body: |
+            ### Subscription License Request
+            - ReqID: ${{ env.EC_CSR_ID }}
+            - From: ${{ env.lic_email }}
+            - For: ${{ github.event.inputs.Common }}
+            - Content: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            - Status: Pending for underwriters' review
+          labels: |
+            license
+            ca
+            certifactory
+          assignees: ayasuda-ge
+          reviewers: ayasuda-ge
+          team-reviewers: |
+            owners
+            maintainers
+            research-development
+            solution
+          milestone: 1
+          draft: false
+      - name: Send pkey via email
+        uses: dawidd6/action-send-mail@v2
+        with:
+          server_address: ${{ secrets.ADM_EML_SVR }}
+          server_port: 587
+          username: ${{secrets.ADM_EML_USR}}
+          password: ${{secrets.ADM_EML_PWD}}
+          subject: EC-Release > Certifactory > License
+          # Literal body:
+          body: |
+            ### Subscription License Request
+            Thank you for [requesting the license](https://github.com/${{ github.repository }}/pull/${{ env.PULL_REQUEST_NUMBER }}) and we will review it shortly.
+            
+            Attached please find the copy of the encrypted RSA key for future verification purpuse.
+            
+            <sup>This key is not sharable or transferrable. The passphrase which used to decrypt the RSA key is not stored anywhere in our system and should be with you the whole time</sup>
+          # Read file contents as body:
+          attachments: ./../pkeys/${{env.EC_CSR_ID}}.key
+          to: ${{ env.lic_email }}
+          from: EC Autobot <ec.autobot@outlook.com>
+          # Optional carbon copy recipients
+          #cc: kyloren@example.com,leia@example.com
+          # Optional blind carbon copy recipients
+          #bcc: r2d2@example.com,hansolo@example.com
+          # Optional content type (defaults to text/plain):
+          content_type: text/html
+          # Optional converting Markdown to HTML (set content_type to text/html too):
+          convert_markdown: true
+          # Optional attachments:
+          #attachments: attachments.zip,git.diff,./dist/static/main.js

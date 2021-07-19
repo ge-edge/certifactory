@@ -1,0 +1,91 @@
+#!/bin/bash
+#
+#  Copyright (c) 2019 General Electric Company. All rights reserved.
+#
+#  The copyright to the computer software herein is the property of
+#  General Electric Company. The software may be used and/or copied only
+#  with the written permission of General Electric Company or in accordance
+#  with the terms and conditions stipulated in the agreement/contract
+#  under which the software has been supplied.
+#
+#  author: apolo.yasuda@ge.com
+#
+
+exportAdmHash() {
+
+  if [[ ! -z "${EC_PPRS}" ]]; then
+    export EC_PPS=$EC_PPRS
+  fi
+
+  echo "$EC_PVK" | base64 --decode > ca.key
+  echo "$EC_PBK" | base64 --decode > ca.cer
+
+  EC_PPS=$(agent -hsh -smp)
+  #EC_PPS=$(agent -hsh -pvk ./ca.key -pbk ./ca.cer -dat "$lic_pps" -smp)
+  EC_PPS=$(agent -hsh -pvk ./ca.key -pbk ./ca.cer -dat "$1" -smp)
+  EC_PPS=$(echo "${EC_PPS##*$'\n'}")
+
+  rm ca.key ca.cer
+  export EC_PPS=$(agent -hsh -smp)
+  
+}
+
+source <(wget -O - https://raw.githubusercontent.com/EC-Release/sdk/disty/scripts/agt/v1.2beta.linux64.txt) -ver
+
+cd ..
+git clone https://${EC_TKN}@github.com/EC-Release/x509.git
+cd x509
+
+cr_dir=$(find . -name "${lic_id}.cer")
+if [ -z "$cr_dir" ]; then
+  printf "\n\n**** public cert is invalid. Exiting the workflow.\n"
+  exit -1
+fi
+
+echo '****' cr_dir $cr_dir
+#export DEV_ID=$lic_id
+CSR_ID=$(git log --pretty=oneline --abbrev-commit -- ${cr_dir} | grep -Po '[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}')
+export CSR_ID=$(echo ${CSR_ID} | cut -d' ' -f 1)
+echo '****' CSR_ID $CSR_ID
+export REQ_EMAIL=$(openssl req -in ./csr-list/$CSR_ID.csr -noout -text | grep -Po '([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)')
+printf "\n\n**** Req Email: %s\n\n" "$REQ_EMAIL"
+
+# verify if the pk exists
+cd ./../
+git clone https://${EC_TKN}@github.com/EC-Release/pkeys.git
+cd pkeys
+cs_dir=$(find . -name "${CSR_ID}.key")
+if [ -z "$cs_dir" ]; then
+  printf "\n\n**** private key is invalid. Exiting the workflow.\n"
+  exit -1
+    #export LIC_PVK=$(cat ${cs_dir}|base64 -w0)
+fi
+
+#echo passphrase reset
+#agent -hsh -pvk ./pkeys/"$cs_dir" -pbk ./x509/"$cr_dir" -smp > /dev/null
+
+echo generate decrypted RSA private key 
+
+exportAdmHash "$lic_pps"
+
+agent -pvd -pvk ${cs_dir} -smp > thekey
+
+exportAdmHash "$lic_new_pps"
+agent -spd -pvk ./thekey -smp
+
+rm thekey
+cp ./thekey.key ./../key.txt
+mv ./thekey.key ${cs_dir}
+
+git add .
+git config user.email "EC.Bot@ge.com"
+git config user.name "EC Bot"
+git commit -m "pkey ${CSR_ID}.key reset [skip ci]"
+git push
+
+echo "lic_email=$REQ_EMAIL" >> $GITHUB_ENV
+echo "DEV_ID=${lic_id}" >> $GITHUB_ENV
+
+: 'echo $EC_PPS > ./hash.txt
+echo "lic_email=$REQ_EMAIL" >> $GITHUB_ENV
+tree ./'
