@@ -60,8 +60,6 @@ jobs:
         run: |
           export lic_pps=$(cat $GITHUB_EVENT_PATH | jq '.inputs.PPS' | sed 's/"//g' )
           export lic_email=$(cat $GITHUB_EVENT_PATH | jq '.inputs.Email' | sed 's/"//g' )
-          rm ./csr-gen.sh
-          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/csr-gen.sh
           chmod 644 ./csr-gen.sh
           source ./csr-gen.sh      
       - name: Validate license req
@@ -69,9 +67,7 @@ jobs:
         env:
           CSR_ID: ${{ env.EC_CSR_ID }}
         run: |
-          rm csr-validate.sh
-          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/csr-validate.sh
-          chmod 775 ./csr-validate.sh
+          chmod 644 ./csr-validate.sh
           source ./csr-validate.sh
       - name: Create PR for the license
         id: pr-license
