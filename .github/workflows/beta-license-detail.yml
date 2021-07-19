@@ -27,7 +27,7 @@ jobs:
           EC_TKN: ${{ secrets.ADM_TKN }}
         run: |
           export lic_id=$(cat $GITHUB_EVENT_PATH | jq '.inputs.Id' | sed 's/"//g' )
-          rm ./cert-detail.sh &> /dev/null
-          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/cert-detail.sh
-          chmod 644 ./cert-detail.sh
-          source ./cert-detail.sh
+          rm ./crt-detail.sh &> /dev/null
+          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/crt-detail.sh
+          chmod 644 ./crt-detail.sh
+          source ./crt-detail.sh
