@@ -39,11 +39,12 @@ fi
   
   #git log --pretty=oneline --abbrev-commit -- ${cr_dir} | grep -Po '[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}'
   #printf "\n\n***** cr_dir: %s\n" "$cr_dir"
-  
-CSR_ID=$(git log --pretty=oneline --abbrev-commit -- ${cr_dir} | grep -Po '[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}')
-export CSR_ID=$(echo ${CSR_ID} | cut -d' ' -f 1)
+export CSR_ID=$(agent -vfy -pbk ${cr_dir} -smp | jq -r '.exts.csrId')
+#CSR_ID=$(git log --pretty=oneline --abbrev-commit -- ${cr_dir} | grep -Po '[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}')
+#export CSR_ID=$(echo ${CSR_ID} | cut -d' ' -f 1)
 echo '****' CSR_ID $CSR_ID
-export REQ_EMAIL=$(openssl req -in ./csr-list/$CSR_ID.csr -noout -text | grep -Po '([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)')
+#export REQ_EMAIL=$(openssl req -in ./csr-list/$CSR_ID.csr -noout -text | grep -Po '([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)')
+export REQ_EMAIL=$(agent -vfy -pbk ${cr_dir} -smp | jq -r '.emailAddress')
 printf "\n\n**** Req Email: %s\n\n" "$REQ_EMAIL"
 
   # verify if the pk exists
