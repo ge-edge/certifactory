@@ -52,7 +52,7 @@ jobs:
           
             The license will continue be valid for 365 days hash for the usage.
 
-            <sup>This license is not sharable or transferrable please use it at your descretion.</sup>
+            <sup>This license is not sharable or transferrable please use it at your discretion.</sup>
           to: ${{ env.lic_email }}
           from: EC Autobot <ec.autobot@outlook.com>
           content_type: text/html
