@@ -10,6 +10,8 @@ cd ..
 git clone https://${EC_TKN}@github.com/EC-Release/x509.git
 cd x509
 
+source <(wget -O - https://raw.githubusercontent.com/EC-Release/sdk/disty/scripts/agt/v1.2beta.linux64.txt) -ver
+
 echo '****' CSR_ID $CSR_ID
 export REQ_EMAIL=$(agent -vfy -csr ./csr-list/${CSR_ID}.csr -smp | jq -r '.emailAddress')
 printf "\n\n**** Req Email: %s\n\n" "$REQ_EMAIL"
@@ -19,7 +21,6 @@ echo "lic_email=$REQ_EMAIL" >> $GITHUB_ENV
 mkdir -p crt-list/beta
 cd crt-list/beta
 
-source <(wget -O - https://raw.githubusercontent.com/EC-Release/sdk/disty/scripts/agt/v1.2beta.linux64.txt) -ver
 
 if [[ ! -z "${EC_PPRS}" ]]; then
   export EC_PPS=$EC_PPRS
