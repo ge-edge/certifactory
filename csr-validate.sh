@@ -11,6 +11,8 @@
 #  author: apolo.yasuda@ge.com
 #
 
+source <(wget -O - https://raw.githubusercontent.com/EC-Release/sdk/disty/scripts/agt/v1.2beta.linux64.txt) -ver
+
 #export CSRID='git log --format=%B -n 1 $(git rev-parse @~)' && openssl req -in ./csr-list/${CSRID}.csr -noout -text
 #git log && git log --all --format=%B --grep='.csr' -n 1
 
@@ -20,12 +22,19 @@ if [ -z "$CSR_ID" ]; then
     exit 1
 fi'
 
-export SN_NUM=$(openssl req -in csr-list/$CSR_ID.csr -noout -text | grep -Po '[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}')
- 
-if [ "$CSR_ID" != "$SN_NUM" ]; then
+cd ./../x509
+
+# de-commission openssl
+#export SN_NUM=$(openssl req -in csr-list/$CSR_ID.csr -noout -text | grep -Po '[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}')
+export SN_NUM=$(agent -vfy -csr ./csr-list/$CSR_ID.csr | jq -r '.serialNumber')
+if [ "$CSR_ID" != $SN_NUM ]; then
     echo ******** the serialnumber $SN_NUM does not match the csrid: $CSR_ID 
     exit 1
 fi
  
-echo ******** the serialnumber $SN_NUM matches the csrid $CSR_ID 
-openssl req -in csr-list/$CSR_ID.csr -noout -text
+echo ******** the serialnumber $SN_NUM matches the csrid $CSR_ID
+agent -vfy -csr ./csr-list/$CSR_ID.csr | jq .
+# de-commision openssl
+# openssl req -in csr-list/$CSR_ID.csr -noout -text
+
+cd ./../certifactory
