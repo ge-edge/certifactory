@@ -4,13 +4,14 @@ ref0=$(git rev-parse HEAD)
 ref1=$(git log --format=%B -n 1 $ref0 | head -n 1)
 ref2=$(printf "%s" "${ref1#*/beta-}")
 export CSR_ID="${ref2%.*}"
-printf "\n\n**** CSR_ID: %s\n\n" "$CSR_ID"
+#printf "\n\n**** CSR_ID: %s\n\n" "$CSR_ID"
 
 cd ..
 git clone https://${EC_TKN}@github.com/EC-Release/x509.git
 cd x509
 
-export REQ_EMAIL=$(openssl req -in ./csr-list/$CSR_ID.csr -noout -text | grep -Po '([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)')
+echo '****' CSR_ID $CSR_ID
+export REQ_EMAIL=$(agent -vfy -csr ./csr-list/${CSR_ID}.csr -smp | jq -r '.emailAddress')
 printf "\n\n**** Req Email: %s\n\n" "$REQ_EMAIL"
 echo "lic_email=$REQ_EMAIL" >> $GITHUB_ENV
 
