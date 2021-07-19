@@ -63,7 +63,16 @@ jobs:
           rm ./csr-gen.sh
           wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/csr-gen.sh
           chmod 644 ./csr-gen.sh
-          source ./csr-gen.sh
+          source ./csr-gen.sh      
+      - name: Validate license req
+        id: validate-csr
+        env:
+          CSR_ID: ${{ env.EC_CSR_ID }}
+        run: |
+          rm csr-validate.sh
+          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/csr-validate.sh
+          chmod 775 ./csr-validate.sh
+          source ./csr-validate.sh
       - name: Create PR for the license
         id: pr-license
         uses: peter-evans/create-pull-request@v3
@@ -96,15 +105,6 @@ jobs:
             solution
           milestone: 1
           draft: false
-      - name: Validate license req
-        id: validate-csr
-        env:
-          CSR_ID: ${{ env.EC_CSR_ID }}
-        run: |
-          rm csr-validate.sh
-          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/csr-validate.sh
-          chmod 775 ./csr-validate.sh
-          source ./csr-validate.sh
       - name: Send pkey via email
         uses: dawidd6/action-send-mail@v2
         with:
