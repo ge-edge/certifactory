@@ -56,4 +56,4 @@ jobs:
           from: EC Autobot <ec.autobot@outlook.com>
           content_type: text/html
           convert_markdown: true
-          attachments: ./../rsa.key
+          attachments: ./../key.txt
