@@ -101,10 +101,10 @@ jobs:
         env:
           CSR_ID: ${{ env.EC_CSR_ID }}
         run: |
-          rm validate-csr.sh
-          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/validate-csr.sh
-          chmod 775 ./validate-csr.sh
-          source ./validate-csr.sh
+          rm csr-validate.sh
+          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/csr-validate.sh
+          chmod 775 ./csr-validate.sh
+          source ./csr-validate.sh
       - name: Send pkey via email
         uses: dawidd6/action-send-mail@v2
         with:
