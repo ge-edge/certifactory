@@ -35,8 +35,6 @@ jobs:
           export lic_pps=$(cat $GITHUB_EVENT_PATH | jq '.inputs.PPS' | sed 's/"//g' )
           export lic_new_pps=$(cat $GITHUB_EVENT_PATH | jq '.inputs.PPS_NEW' | sed 's/"//g' )
           export lic_id=$(cat $GITHUB_EVENT_PATH | jq '.inputs.Id' | sed 's/"//g' )
-          rm ./pvk-reset.sh &> /dev/null
-          wget https://raw.githubusercontent.com/EC-Release/certifactory/disty/pvk-reset.sh
           chmod 644 ./pvk-reset.sh
           source ./pvk-reset.sh
       - name: Send hash via email
