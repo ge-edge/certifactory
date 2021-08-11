@@ -20,10 +20,6 @@ fi
 echo "$EC_PVK" | base64 --decode > ca.key
 echo "$EC_PBK" | base64 --decode > ca.cer
 EC_PPS=$(agent -hsh -smp)
-echo ***** begin step1
-agent -hsh -pvk ./ca.key -pbk ./ca.cer -dat "$lic_pps" -smp
-exit 0
-echo ***** end step1
 
 EC_PPS=$(agent -hsh -pvk ./ca.key -pbk ./ca.cer -dat "$lic_pps" -smp)
 EC_PPS=$(echo "${EC_PPS##*$'\n'}")
